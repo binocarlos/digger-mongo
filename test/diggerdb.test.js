@@ -138,24 +138,28 @@ describe('digger-mongo', function(){
 
 	})
 
-/*
+
 	it('should insert and find big test data', function(done){
 		
 		this.timeout(2000);
 
-		var data = XML.parse(require(__dirname + '/fixtures/data').simplexml);
+		var data = XML.parse(require(__dirname + '/fixtures/data').citiesxml);
 		var datac = bridge.container(data);
 
-		var db = diggerdb({
-			collection:'test',
+		var mongo_supplier = Mongo({
+			database:'test',
+			collection:'test3',
+			nocache:true,
 			reset:true
-		})
+		});
 
-		var container = Bridge(db).connect();
+		app.digger('/test3/mongo1', mongo_supplier);
 
-		container.append(datac).ship(function(){
+		var supplychain1 = bridge.connect('/test3/mongo1');
 
-			container('city.south').ship(function(cities){
+		supplychain1.append(datac).ship(function(){
+
+			supplychain1('city.south').ship(function(cities){
 				cities.count().should.equal(3);
 				done();
 			})
@@ -163,6 +167,7 @@ describe('digger-mongo', function(){
 
 	})
 
+/*
 	it('should save', function(done){
 		
 		this.timeout(2000);
