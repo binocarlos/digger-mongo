@@ -205,11 +205,6 @@ function combine_tree_results(results, descendent_results){
 
 function selectfn(collection, mongoquery, callback){
 
-
-  console.log('-------------------------------------------');
-  console.dir(mongoquery.query);
-  console.log('-------------------------------------------');
-  console.dir(mongoquery.fields);
   var cursor = collection.find(mongoquery.query, mongoquery.fields, mongoquery.options);
 
   
@@ -244,7 +239,6 @@ module.exports = function(supplier){
 		var selector = req.selector;
 		var context = req.context;
 
-    try{
     var select_query = generate_mongo_query(selector, context);
     if(!select_query){
       reply(null, []);
@@ -276,11 +270,7 @@ module.exports = function(supplier){
         })
       }  
     })
-    } catch (e){
-      console.log('-------------------------------------------');
-      console.dir(e);
-      console.log(e.stack);
-    }
+
   }
 
 		

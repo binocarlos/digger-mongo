@@ -15,7 +15,9 @@ describe('digger-mongo', function(){
 
 	before(function(done){
 
-		app = Reception();
+		app = Reception({
+			log:false
+		});
 
 		var server = app.listen(8799, function(){
 			done();
@@ -37,9 +39,9 @@ describe('digger-mongo', function(){
 
 		mongo_supplier.provision('collection');
 
-		app.digger('/mongo1', mongo_supplier);
+		app.digger('/test1/mongo1', mongo_supplier);
 
-		var supplychain1 = bridge.connect('/mongo1/colors');
+		var supplychain1 = bridge.connect('/test1/mongo1/colors');
 
 		function getdata(){
 			var data = [{
@@ -77,9 +79,9 @@ describe('digger-mongo', function(){
 
 			mongo_supplier2.provision('collection');
 
-			app.digger('/mongo2', mongo_supplier2);
+			app.digger('/test2/mongo2', mongo_supplier2);
 
-			var supplychain2 = bridge.connect('/mongo2/colors');
+			var supplychain2 = bridge.connect('/test2/mongo2/colors');
 
 			supplychain2.append(getdata()).ship(function(){
 
@@ -101,28 +103,32 @@ describe('digger-mongo', function(){
 		
 	})
 
-/*
+
 	it('should insert and find test data', function(done){
 		
 		this.timeout(2000);
 
 		var data = XML.parse(require(__dirname + '/fixtures/data').simplexml);
-		var datac = Bridge.container(data);
+		var datac = bridge.container(data);
 
-		var db = diggerdb({
-			collection:'test',
+		var mongo_supplier = Mongo({
+			database:'test',
+			collection:'test2',
+			nocache:true,
 			reset:true
-		})
+		});
 
-		var container = Bridge(db).connect();
+		app.digger('/test2/mongo1', mongo_supplier);
 
-		var simpleadd = Bridge.container('simple', {
+		var supplychain1 = bridge.connect('/test2/mongo1');
+
+		var simpleadd = bridge.container('simple', {
 			name:'test',
 			height:34
 		})
 
-		container.append(simpleadd).ship(function(){
-			container('simple').ship(function(items){
+		supplychain1.append(simpleadd).ship(function(){
+			supplychain1('simple').ship(function(items){
 				items.count().should.equal(1);
 				items.tag().should.equal('simple');
 				items.attr('height').should.equal(34);
@@ -132,12 +138,13 @@ describe('digger-mongo', function(){
 
 	})
 
+/*
 	it('should insert and find big test data', function(done){
 		
 		this.timeout(2000);
 
-		var data = XML.parse(require(__dirname + '/fixtures/data').citiesxml);
-		var datac = Bridge.container(data);
+		var data = XML.parse(require(__dirname + '/fixtures/data').simplexml);
+		var datac = bridge.container(data);
 
 		var db = diggerdb({
 			collection:'test',

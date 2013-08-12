@@ -52,8 +52,6 @@ module.exports = function(supplier){
 
   return function(collection, req, reply){
   	
-    console.log('-------------------------------------------');
-    console.log('APPEND');
     var contextid = req.context ? req.context.id : null;
     var body = req.body || [];
 
