@@ -206,28 +206,31 @@ describe('digger-mongo', function(){
 	})
 
 
-/*
 	it('should remove', function(done){
 		
 		this.timeout(2000);
 
 		var data = XML.parse(require(__dirname + '/fixtures/data').citiesxml);
-		var datac = Bridge.container(data);
+		var datac = bridge.container(data);
 
-		var db = diggerdb({
-			collection:'test',
+		var mongo_supplier = Mongo({
+			database:'test',
+			collection:'test5',
+			nocache:true,
 			reset:true
-		})
+		});
 
-		var container = Bridge(db).connect();
+		app.digger('/test5/mongo1', mongo_supplier);
 
-		container.append(datac).ship(function(){
-			container('city.south').ship(function(cities){
+		var supplychain1 = bridge.connect('/test5/mongo1');
+
+		supplychain1.append(datac).ship(function(){
+			supplychain1('city.south').ship(function(cities){
 				cities.count().should.equal(3);
 
 				cities.eq(0).remove().ship(function(){
 
-					container('city.south').ship(function(cities){
+					supplychain1('city.south').ship(function(cities){
 						
 						cities.count().should.equal(2);
 						done();
@@ -239,164 +242,4 @@ describe('digger-mongo', function(){
 
 	})
 
-	it('should load from within an already loaded container', function(done){
-		
-		this.timeout(2000);
-
-		var data = XML.parse(require(__dirname + '/fixtures/data').citiesxml);
-		var datac = Bridge.container(data);
-
-		var db = diggerdb({
-			collection:'test',
-			reset:true
-		})
-
-		var container = Bridge(db).connect();
-
-		container.append(datac).ship(function(){
-
-			container('city.south').ship(function(cities){
-
-				cities('area.poor').ship(function(results){
-					results.count().should.equal(3);
-					done();
-				})
-
-			})
-
-		})
-
-	})
-
-
-	it('should load children based on the tree modifier', function(done){
-		
-		this.timeout(2000);
-
-		var data = XML.parse(require(__dirname + '/fixtures/data').citiesxml);
-		var datac = Bridge.container(data);
-
-		var db = diggerdb({
-			collection:'test',
-			reset:true
-		})
-
-		var container = Bridge(db).connect();
-
-		container.append(datac).ship(function(){
-
-			container('city.south:tree').ship(function(cities){
-
-				cities.count().should.equal(3);
-				cities.find('area').count().should.equal(8);
-				done();
-
-			})
-
-		})
-
-	})
-
-	it('should provision into a collection based on the path', function(done){
-		
-		this.timeout(2000);
-
-		var data = XML.parse(require(__dirname + '/fixtures/data').citiesxml);
-		var datac = Bridge.container(data);
-
-		var db = diggerdb({
-			provider:'collection',
-			url:'/mongo',
-			reset:true
-		})
-
-		var container = Bridge(db).connect('/mongo/testprovider');
-
-		container.append(datac).ship(function(){
-
-			container('city.south:tree').ship(function(cities){
-
-				cities.count().should.equal(3);
-				cities.find('area').count().should.equal(8);
-
-				var details =  {
-					hostname:'127.0.0.1',
-					port:27017,
-					database:'digger',
-					collection:'testprovider',
-					reset:false
-				}
-
-				DB(details, function(error, collection){
-					var cursor = collection.find({
-						'$and':[{
-							'_digger.tag':'city'
-						},{
-							'_digger.class':'south'
-						}]
-					}, null, {})
-
-					cursor.toArray(function(error, docs){
-						docs.length.should.equal(3);
-						done();
-					})
-				})
-
-			})
-
-		})
-
-	})
-
-	it('should provision into a database and collection based on the path', function(done){
-		
-		this.timeout(2000);
-		
-		var data = XML.parse(require(__dirname + '/fixtures/data').citiesxml);
-		var datac = Bridge.container(data);
-
-		var db = diggerdb({
-			provider:'database',
-			url:'/mongo',
-			reset:true
-		})
-
-		var container = Bridge(db).connect('/mongo/testdb/testprovider');
-
-		container.append(datac).ship(function(){
-
-			container('city.south:tree').ship(function(cities){
-
-				cities.count().should.equal(3);
-				cities.find('area').count().should.equal(8);
-
-				var details =  {
-					hostname:'127.0.0.1',
-					port:27017,
-					database:'testdb',
-					collection:'testprovider',
-					reset:false
-				}
-
-				DB(details, function(error, collection){
-					var cursor = collection.find({
-						'$and':[{
-							'_digger.tag':'city'
-						},{
-							'_digger.class':'south'
-						}]
-					}, null, {})
-
-					cursor.toArray(function(error, docs){
-						docs.length.should.equal(3);
-						done();
-					})
-				})
-
-			})
-
-		})
-
-	})
-*/
 })

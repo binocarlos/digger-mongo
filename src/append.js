@@ -124,7 +124,7 @@ module.exports = function(supplier){
                 '$safe':true
               }, function(error){
                 next(error, model);
-              })  
+              })
             })
             
             

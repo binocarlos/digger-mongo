@@ -13,10 +13,41 @@
  */
 
 var NestedSet = require('digger-nestedset');
+var Load = require('./load');
 var _ = require('lodash');
 
+function remove(collection, data, done){
+  collection.remove({
+    '$and':[
+      {
+        '_digger.left':{
+          '$gte':data._digger.left
+        }
+      },
+      {
+        '_digger.right':{
+          '$lte':data._digger.right
+        }
+      }
+    ]
+  }, {safe:true}, done)
+}
+
 module.exports = function(supplier){
+
+	var loader = Load(supplier);
+
 	return function(collection, req, reply){
+
+    var id = req.url.replace(/^\//, '');
+
+    loader(collection, {
+      id:id
+    }, function(error, context){
+      remove(collection, context, function(error){
+        reply(error);
+      })
+    })
 
 	}
 }
