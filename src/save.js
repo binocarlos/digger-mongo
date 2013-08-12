@@ -14,9 +14,27 @@
 
 var NestedSet = require('digger-nestedset');
 var _ = require('lodash');
+var strip_dollars = require('./strip_dollars');
+
+function update(collection, data, callback){
+
+  var raw = _.clone(data);
+  delete(raw._children);
+  delete(raw._data);
+
+  strip_dollars(raw);
+
+  collection.update({
+    '_digger.diggerid':data._digger.diggerid
+  }, raw, {safe:true}, callback)
+  
+}
 
 module.exports = function(supplier){
-	return function(collection, req, reply){
 
+	return function(collection, req, reply){
+		update(collection, req.body, function(error, result){
+			reply(error, req.body);
+		})
 	}
 }

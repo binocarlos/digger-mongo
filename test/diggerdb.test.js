@@ -167,30 +167,33 @@ describe('digger-mongo', function(){
 
 	})
 
-/*
+
 	it('should save', function(done){
 		
 		this.timeout(2000);
 
 		var data = XML.parse(require(__dirname + '/fixtures/data').citiesxml);
-		var datac = Bridge.container(data);
+		var datac = bridge.container(data);
 
-		var db = diggerdb({
-			collection:'test',
+		var mongo_supplier = Mongo({
+			database:'test',
+			collection:'test4',
+			nocache:true,
 			reset:true
-		})
+		});
 
-		var supplychain = Bridge(db);
+		app.digger('/test4/mongo1', mongo_supplier);
 
-		var container = supplychain.connect();
+		var supplychain1 = bridge.connect('/test4/mongo1');
 
-		container.append(datac).ship(function(){
-			container('city.south').ship(function(cities){
+		supplychain1.append(datac).ship(function(){
+			supplychain1('city.south').ship(function(cities){
+
 				cities.count().should.equal(3);
 
 				cities.eq(0).attr('testme', 'hello').save().ship(function(){
 
-					container('city.south[testme=hello]').ship(function(cities){
+					supplychain1('city.south[testme=hello]').ship(function(cities){
 						
 						cities.count().should.equal(1);
 						done();
@@ -202,6 +205,8 @@ describe('digger-mongo', function(){
 
 	})
 
+
+/*
 	it('should remove', function(done){
 		
 		this.timeout(2000);
