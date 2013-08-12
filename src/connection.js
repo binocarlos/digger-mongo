@@ -21,7 +21,7 @@ var async = require('async');
 
 var mongodb = require('mongodb');
 
-module.exports = get_mongo_collection;
+module.exports = collection_factory;
 
 /*
 
@@ -31,6 +31,24 @@ module.exports = get_mongo_collection;
 */
 var databases = {};
 var collections = {};
+var load_callbacks = {};
+
+function collection_factory(options, req, callback){
+  var useoptions = _.clone(options);
+  var runcallbacks = callback;
+
+  if(req.headers['x-json-resource']){
+    for(var prop in req.headers['x-json-resource']){
+      useoptions[prop] = req.headers['x-json-resource'][prop];
+    }
+  }
+
+  get_mongo_collection(useoptions, function(error, collection){
+
+    runcallbacks(error, collection);
+    
+  })
+}
 
 function get_mongo_server(details, callback){
   var server = new mongodb.Server(details.hostname, details.port, {});
@@ -39,9 +57,11 @@ function get_mongo_server(details, callback){
 
 function get_mongo_database(details, callback){
 
-  var database = databases[details.hostname + ':' + details.port + ':' + details.database];
+  var key = details.hostname + ':' + details.port + ':' + details.database;
 
-  if(database && !details.nocache){
+  var database = databases[key];
+
+  if(database){
     callback(null, database);
     return;
   }
@@ -55,30 +75,94 @@ function get_mongo_database(details, callback){
       if(error){
         throw new Error(error);
       }
+
       
-      databases[details.hostname + ':' + details.port + ':' + details.database] = database;  
+      databases[details.hostname + ':' + details.port + ':' + details.database] = database;    
       callback(error, database);
     });
   })
 }
 
 function get_mongo_collection(details, callback){
-  var collection = collections[details.hostname + ':' + details.port + ':' + details.database + ':' + details.collection];
+  var key = details.hostname + ':' + details.port + ':' + details.database + ':' + details.collection;
 
-  if(collection && !details.reset && !details.nocache){
+  var collection = collections[key];
+
+  if(collection && !details.nocache){
     callback(null, collection);
     return;
+  }
+
+  if(load_callbacks[key]){
+    load_callbacks[key].push(callback);
+    return;
+  }
+  else{
+    load_callbacks[key] = [callback];
+  }
+
+  callback = function(error, collection){
+    var arr = load_callbacks[key];
+    delete(load_callbacks[key]);
+    async.forEach(arr, function(fn, nextfn){
+      fn(error, collection);
+      nextfn();
+    })
   }
 
   get_mongo_database(details, function(error, database){
 
     var collection = new mongodb.Collection(database, details.collection);
 
+    collection.ensure_meta = function(ready){
+      collection.find({
+        "__diggermongo.digger":true
+      }, null, null).nextObject(function(error, settings){
+        
+        if(error){
+          callback(error);
+          return;
+        }
+        if(!settings){
+          settings = {
+            __diggermongo:{
+              digger:true,
+              next_position:0
+            }
+          }
+
+          collection.insert(settings, {
+            '$safe':true
+          }, function(error){
+            
+            if(error){
+              callback(error);
+              return;
+            }
+            ready();
+          })
+        }
+        else{
+          ready();
+        }
+      })
+    }
+
+    collection.ensure_meta(function(){
+      if(!details.nocache){
+        collections[details.hostname + ':' + details.port + ':' + details.database + ':' + details.collection] = collection;  
+      }
+      callback(null, collection);  
+    })
+
+  })
+}
+
     /*
     
       this needs to be better
       
-    */
+
     collection.mapreduce = function(map_reduce_options, map_reduce_callback){
 
       map_reduce_options = _.extend({}, map_reduce_options);
@@ -98,19 +182,4 @@ function get_mongo_collection(details, callback){
 
         map_reduce_callback(err, results);
       })
-    }
-
-    collections[details.hostname + ':' + details.port + ':' + details.database + ':' + details.collection] = collection;
-
-    if(details.reset){
-      details.reset = false;
-      collection.drop(function(){
-        callback(null, collection);
-      })
-    }
-    else{
-      callback(null, collection);  
-    }
-    
-  })
-}
+    }    */

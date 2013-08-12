@@ -15,6 +15,8 @@
 var NestedSet = require('digger-nestedset');
 var _ = require('lodash');
 
-module.exports = function(collection, req, reply){
+module.exports = function(supplier){
+	return function(collection, req, reply){
 
+	}
 }

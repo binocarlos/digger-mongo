@@ -16,7 +16,8 @@ var Supplier = require('digger-supplier');
 var NestedSet = require('digger-nestedset');
 var DB = require('./connection');
 var _ = require('lodash');
-
+var async = require('async');
+var Load = require('./load');
 var Select = require('./select');
 var Append = require('./append');
 var Save = require('./save');
@@ -29,43 +30,48 @@ module.exports = function(options){
     port:27017,
     database:'digger',
     collection:'test',
-    reset:false
+    reset:false,
+    nocache:false
   })
 
-  function collection_factory(req, callback){
-	  var useoptions = _.clone(options);
+  var resetmode = options.reset;
 
-	  if(req.headers['x-json-resource']){
-	    useoptions = _.extend(useoptions, req.headers['x-json-resource']);
-	  }
-
-	  DB(useoptions, function(error, collection){
-	    if(options.reset){
-	      options.reset = false;
-	    }
-	    callback(error, collection);
-	  });
-
-	}
-
+	/*
+	
+		keep a buffer for load requests whilst we are loading
+		
+	*/
 	function handle_factory(fn){
 		return function(req, reply){
-			collection_factory(req, function(error, collection){
+
+			DB(options, req, function(error, collection){
 				if(error){
 					reply(error);
 					return;
 				}
-				fn(collection, req, reply);
+				if(resetmode){
+					collection.drop(function(){
+						collection.ensure_meta(function(){
+							resetmode = false;
+							fn(collection, req, reply);		
+						})
+					})
+				}
+				else{
+					fn(collection, req, reply);
+				}
+				
 			})
 		}
 	}
 
 	var supplier = Supplier(options);
 
-	supplier.on('select', handle_factory(Select));
-	supplier.on('append', handle_factory(Append));
-	supplier.on('save', handle_factory(Save));
-	supplier.on('remove', handle_factory(Remove));
-
+	supplier.on('load', handle_factory(Load(supplier)));
+	supplier.on('select', handle_factory(Select(supplier)));
+	supplier.on('append', handle_factory(Append(supplier)));
+	supplier.on('save', handle_factory(Save(supplier)));
+	supplier.on('remove', handle_factory(Remove(supplier)));
+	
 	return supplier;
 }
