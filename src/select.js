@@ -250,6 +250,7 @@ module.exports = function(supplier){
     }
 
     selectfn(collection, select_query, function(error, results){
+
       if(error){
         reply(null, []);
         return;
