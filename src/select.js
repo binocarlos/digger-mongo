@@ -48,6 +48,10 @@ function processterm(term){
 }
 
 function generate_mongo_query(selector, context){
+
+  if(!selector){
+    return;
+  }
 	var query = NestedSet.query_factory(selector, context);
 
 	var search_terms = _.map(_.filter(query.search, filterterm), processterm);
