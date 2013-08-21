@@ -51,8 +51,8 @@ function get_digger_position(collection, id, length, done){
 module.exports = function(supplier){
 
   return function(collection, req, reply){
-  	
-    var contextid = req.context ? req.context.id : null;
+
+    var contextid = req.context ? (req.context._digger ? req.context._digger.diggerid : req._id) : null;
     var body = req.body || [];
 
     get_digger_position(collection, contextid, body.length, function(error, obj){
@@ -120,9 +120,15 @@ module.exports = function(supplier){
           process_append(model, context, function(error, appendarray){
             
             process.nextTick(function(){
+
+              console.log('-------------------------------------------');
+              console.log('Inserting');
+              console.log(JSON.stringify(appendarray, null, 4));
               collection.insert(appendarray, {
                 '$safe':true
               }, function(error){
+                console.log('-------------------------------------------');
+                console.dir(error);
                 next(error, model);
               })
             })
