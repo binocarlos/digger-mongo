@@ -121,14 +121,14 @@ module.exports = function(supplier){
             
             process.nextTick(function(){
 
-              console.log('-------------------------------------------');
-              console.log('Inserting');
-              console.log(JSON.stringify(appendarray, null, 4));
               collection.insert(appendarray, {
                 '$safe':true
               }, function(error){
-                console.log('-------------------------------------------');
-                console.dir(error);
+                if(error){
+                  console.log('-------------------------------------------');
+                  console.dir(error);  
+                }
+                
                 next(error, model);
               })
             })

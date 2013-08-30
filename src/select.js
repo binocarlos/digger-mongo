@@ -52,6 +52,7 @@ function generate_mongo_query(selector, context){
   if(!selector){
     return;
   }
+
 	var query = NestedSet.query_factory(selector, context);
 
 	var search_terms = _.map(_.filter(query.search, filterterm), processterm);
@@ -249,10 +250,11 @@ module.exports = function(supplier){
       return;
     }
 
+    var sent = false;
     selectfn(collection, select_query, function(error, results){
 
       if(error){
-        reply(null, []);
+        reply(error, []);
         return;
       }
 
@@ -263,6 +265,7 @@ module.exports = function(supplier){
         return;
       }
       else{
+
         selectfn(collection, treequery, function(error, descendent_results){
           if(error){
             reply(error);

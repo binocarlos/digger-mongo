@@ -26,8 +26,8 @@ var Remove = require('./remove');
 module.exports = function(options){
 
 	options = _.defaults(options || {}, {
-    hostname:'127.0.0.1',
-    port:27017,
+    hostname:process.env.DIGGER_MONGO_HOST || '127.0.0.1',
+    port:process.env.DIGGER_MONGO_PORT || 27017,
     database:'digger',
     collection:'test',
     reset:false,
