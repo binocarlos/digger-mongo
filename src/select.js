@@ -219,10 +219,6 @@ function combine_tree_results(results, descendent_results){
 
 function selectfn(collection, mongoquery, callback){
 
-  console.log('-------------------------------------------');
-  console.log('-------------------------------------------');
-  console.log(JSON.stringify(mongoquery.query, null, 4));
-
   var cursor = collection.find(mongoquery.query, mongoquery.fields, mongoquery.options);
 
   
@@ -237,10 +233,6 @@ function selectfn(collection, mongoquery, callback){
 
   cursor[results_method].apply(cursor, [function(error, results){
 
-    console.log('-------------------------------------------');
-    console.log('-------------------------------------------');
-    console.dir(error);
-    console.dir(results);
     if(error){
       callback(error);
     }
