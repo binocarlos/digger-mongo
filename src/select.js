@@ -53,10 +53,10 @@ function generate_mongo_query(selector, context){
     return;
   }
 
-	var query = NestedSet.query_factory(selector, context);
+	var nestedquery = NestedSet.query_factory(selector, context);
 
-	var search_terms = _.map(_.filter(query.search, filterterm), processterm);
-  var skeleton_terms = _.map(query.skeleton, processterm);
+	var search_terms = _.map(_.filter(nestedquery.search, filterterm), processterm);
+  var skeleton_terms = _.map(nestedquery.skeleton, processterm);
 
   var modifier = selector.modifier || {};
 
