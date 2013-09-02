@@ -101,12 +101,11 @@ function get_mongo_collection(details, callback){
     load_callbacks[key] = [callback];
   }
 
-  callback = function(error, collection){
+  function all_callbacks(error, collection){
     var arr = load_callbacks[key];
     delete(load_callbacks[key]);
-    async.forEach(arr, function(fn, nextfn){
+    arr.forEach(function(fn){
       fn(error, collection);
-      nextfn();
     })
   }
 
@@ -152,7 +151,7 @@ function get_mongo_collection(details, callback){
       if(!details.nocache){
         collections[details.hostname + ':' + details.port + ':' + details.database + ':' + details.collection] = collection;  
       }
-      callback(null, collection);  
+      all_callbacks(null, collection);  
     })
 
   })

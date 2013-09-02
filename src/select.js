@@ -25,12 +25,15 @@ function filterterm(term){
 }
 
 function processterm(term){
-  if(_.isArray(term)){
+  if(_.isArray(term) && term.length>1){
     return {
       '$and':_.map(term, processterm)
     }
   }
   else{
+    if(_.isArray(term)){
+      term = term[0];
+    }
     if(term.$or){
       term.$or = _.map(term.$or, processterm);
       return term;
@@ -70,9 +73,15 @@ function generate_mongo_query(selector, context){
   }
 
   if(skeleton_terms.length>0 && selector.tag!=='self'){
-    search_terms.push({
-      '$or':skeleton_terms
-    })
+    if(skeleton_terms.length==1){
+      search_terms.push(skeleton_terms[0]);
+    }
+    else{
+      search_terms.push({
+        '$or':skeleton_terms
+      })
+    }
+    
   }
 
   var query = search_terms.length>1 ? {
@@ -210,6 +219,10 @@ function combine_tree_results(results, descendent_results){
 
 function selectfn(collection, mongoquery, callback){
 
+  console.log('-------------------------------------------');
+  console.log('-------------------------------------------');
+  console.log(JSON.stringify(mongoquery.query, null, 4));
+
   var cursor = collection.find(mongoquery.query, mongoquery.fields, mongoquery.options);
 
   
@@ -223,6 +236,11 @@ function selectfn(collection, mongoquery, callback){
   var results_method = mongoquery.countermode ? 'count' : 'toArray';
 
   cursor[results_method].apply(cursor, [function(error, results){
+
+    console.log('-------------------------------------------');
+    console.log('-------------------------------------------');
+    console.dir(error);
+    console.dir(results);
     if(error){
       callback(error);
     }
