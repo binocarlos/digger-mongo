@@ -280,15 +280,8 @@ module.exports = function(supplier){
       }
       else{
 
-        console.log('-------------------------------------------');
-        console.log(JSON.stringify(treequery, null, 4));
-        console.dir(treequery.query["$or"]);
-
         selectfn(collection, treequery, function(error, descendent_results){
-          console.log('-------------------------------------------');
-          console.log('-------------------------------------------');
-          console.dir(descendent_results);
-          process.exit();
+
           if(error){
             reply(error);
             return;
