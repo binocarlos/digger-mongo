@@ -206,6 +206,10 @@ function combine_tree_results(results, descendent_results){
 
   // loop each result and it's links to see if we have a parent in the original results
   // or in these results
+  _.each(results, function(result){
+    results_map[result._digger.diggerid] = result;
+  })
+
   _.each(descendent_results, function(descendent_result){
     results_map[descendent_result._digger.diggerid] = descendent_result;
   })
