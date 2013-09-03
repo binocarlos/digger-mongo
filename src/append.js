@@ -120,7 +120,6 @@ module.exports = function(supplier){
       var fns = _.map(body, function(model, i){
         return function(next){
           model._digger.diggerpath = base_path.concat([start_position + i]);
-          model._digger.diggerpath = base_path.concat([start_position + i]);
           process_append(model, context, function(error, appendarray){
 
             process.nextTick(function(){

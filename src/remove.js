@@ -15,22 +15,18 @@
 var NestedSet = require('digger-nestedset');
 var Load = require('./load');
 var _ = require('lodash');
+var utils = require('digger-utils');
 
 function remove(collection, data, done){
-  collection.remove({
-    '$and':[
-      {
-        '_digger.left':{
-          '$gte':data._digger.left
-        }
-      },
-      {
-        '_digger.right':{
-          '$lte':data._digger.right
-        }
-      }
-    ]
-  }, {safe:true}, done)
+  var removequery = {
+    "$or":[{
+      "_digger.treepath":new RegExp('^' + utils.escapeRegexp(data._digger.treepath) + '\\.', 'i')
+    },{
+      "_digger.diggerid":data._digger.diggerid
+    }]
+    
+  }
+  collection.remove(removequery, {safe:true}, done)
 }
 
 module.exports = function(supplier){
@@ -45,7 +41,7 @@ module.exports = function(supplier){
       id:id
     }, function(error, context){
       remove(collection, context, function(error){
-        reply(error);
+        reply(error, context);
       })
     })
 
