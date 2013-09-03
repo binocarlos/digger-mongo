@@ -225,8 +225,6 @@ function combine_tree_results(results, descendent_results){
 function selectfn(collection, mongoquery, callback){
 
   var cursor = collection.find(mongoquery.query, mongoquery.fields, mongoquery.options);
-
-  console.log(JSON.stringify(mongoquery.query, null, 4));
   
   /*
   

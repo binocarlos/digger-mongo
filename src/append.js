@@ -61,6 +61,7 @@ function process_append(model, parent, done){
     child._id = child._digger.diggerid;
     child._digger.diggerparentid = parent._digger.diggerid;
     NestedSet.assign_tree_encodings(child._digger)
+    child._digger.next_position = (child._children || []).length;
     _.each(child._children, function(grandchild, j){
       process_child(grandchild, child, j);
     })
@@ -71,7 +72,7 @@ function process_append(model, parent, done){
   if(parent){
     model._digger.diggerparentid = parent._digger.diggerid;
   }
-  
+  model._digger.next_position = (model._children || []).length;
   _.each(model._children, function(child, i){
     process_child(child, model, i);
   })
@@ -119,8 +120,9 @@ module.exports = function(supplier){
       var fns = _.map(body, function(model, i){
         return function(next){
           model._digger.diggerpath = base_path.concat([start_position + i]);
+          model._digger.diggerpath = base_path.concat([start_position + i]);
           process_append(model, context, function(error, appendarray){
-            
+
             process.nextTick(function(){
 
               collection.insert(appendarray, {
@@ -150,7 +152,6 @@ module.exports = function(supplier){
         console.log('-------------------------------------------');
         console.dir(e);
         console.log(e.stack);
-        process.exit();
       }
       
     })
