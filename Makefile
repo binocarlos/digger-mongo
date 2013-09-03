@@ -1,4 +1,4 @@
-TESTS = test/diggerdb.test.js
+TESTS = test/no.test.js
 REPORTER = spec
 #REPORTER = dot
 

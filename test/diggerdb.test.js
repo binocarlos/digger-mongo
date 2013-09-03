@@ -1,32 +1,12 @@
 var Mongo = require('../src');
 
 var XML = require('digger-xml');
-var Reception = require('digger-reception');
-var Bridge = require('digger-bridge');
-
+var Client = require('digger-client');
 var data = require('./fixtures/data');
 var async = require('async');
 var fs = require('fs');
 
 describe('digger-mongo', function(){
-
-	var bridge = null;
-	var app = null;
-
-	before(function(done){
-
-		app = Reception({
-			log:false
-		});
-
-		var server = app.listen(8799, function(){
-			done();
-		})
-
-		bridge = Bridge({
-			port:8799
-		});
-  })
 
 	it('should allow the database to be reset', function(done){
 
@@ -39,9 +19,9 @@ describe('digger-mongo', function(){
 
 		mongo_supplier.provision('collection');
 
-		app.digger('/test1/mongo1', mongo_supplier);
+		var db = Client(mongo_supplier);
 
-		var supplychain1 = bridge.connect('/test1/mongo1/colors');
+		var con
 
 		function getdata(){
 			var data = [{
