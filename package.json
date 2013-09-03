@@ -1,6 +1,6 @@
 {
   "name": "digger-mongo",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "Mongo supplier for digger",
   "main": "src/index.js",
   "scripts": {
