@@ -170,7 +170,7 @@ function generate_mongo_query(selector, context){
       })*/
 
       // now build a descendent query based on the results
-      var descendent_tree_query = NestedSet.generate_tree_query('', _.map(results, NestedSet.extractskeleton));
+      var descendent_tree_query = NestedSet.generate_tree_query('', _.map(results, NestedSet.extract_context));
       descendent_tree_query = _.map(descendent_tree_query, processterm);
 
       var descendent_query = descendent_tree_query.length>1 ? 
@@ -280,7 +280,15 @@ module.exports = function(supplier){
       }
       else{
 
+        console.log('-------------------------------------------');
+        console.log(JSON.stringify(treequery, null, 4));
+        console.dir(treequery.query["$or"]);
+
         selectfn(collection, treequery, function(error, descendent_results){
+          console.log('-------------------------------------------');
+          console.log('-------------------------------------------');
+          console.dir(descendent_results);
+          process.exit();
           if(error){
             reply(error);
             return;
