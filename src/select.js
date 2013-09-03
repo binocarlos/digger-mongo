@@ -24,6 +24,11 @@ function filterterm(term){
   
 }
 
+/*
+
+  this turns abstract SQL into mongo
+  
+*/
 function processterm(term){
   if(_.isArray(term) && term.length>1){
     return {
@@ -159,13 +164,13 @@ function generate_mongo_query(selector, context){
     */
     if(!iscountermode && includechildren && results.length>0){
       // first lets map the results we have by id
-      
+      /*
       _.each(results, function(result){
         results_map[result._digger.diggerid] = result;
-      })
+      })*/
 
       // now build a descendent query based on the results
-      var descendent_tree_query = self.generate_tree_query('', _.map(results, extractskeleton));
+      var descendent_tree_query = NestedSet.generate_tree_query('', _.map(results, NestedSet.extractskeleton));
       descendent_tree_query = _.map(descendent_tree_query, processterm);
 
       var descendent_query = descendent_tree_query.length>1 ? 
@@ -221,6 +226,7 @@ function selectfn(collection, mongoquery, callback){
 
   var cursor = collection.find(mongoquery.query, mongoquery.fields, mongoquery.options);
 
+  console.log(JSON.stringify(mongoquery.query, null, 4));
   
   /*
   
