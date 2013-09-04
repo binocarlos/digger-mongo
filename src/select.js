@@ -15,7 +15,7 @@
 var NestedSet = require('digger-nestedset');
 var _ = require('lodash');
 var operator_functions = require('./operators');
-
+var Selector = require('digger-selector');
 function filterterm(term){
   if(term.$or || term.$and){
     return true;
@@ -69,7 +69,7 @@ function generate_mongo_query(selector, context){
   var modifier = selector.modifier || {};
 
   var includedata = modifier.laststep;
-  var includechildren = includedata && modifier.tree;
+  var treemodifier = includedata ? modifier.tree : null;
 
   var iscountermode = false;
 
@@ -162,28 +162,71 @@ function generate_mongo_query(selector, context){
       only if :tree and there is no :count mode
       
     */
-    if(!iscountermode && includechildren && results.length>0){
+    if(!iscountermode && treemodifier && results.length>0){
       // first lets map the results we have by id
       /*
       _.each(results, function(result){
         results_map[result._digger.diggerid] = result;
       })*/
 
+
+
       // now build a descendent query based on the results
-      var descendent_tree_query = NestedSet.generate_tree_query('', _.map(results, NestedSet.extract_context));
-      descendent_tree_query = _.map(descendent_tree_query, processterm);
+      
 
-      var descendent_query = descendent_tree_query.length>1 ? 
-        {'$or':descendent_tree_query} :
-        {'$and':descendent_tree_query}
+      /*
+      
+        we have an actual selector to match with the tree
+        this strips out anything not matching
 
-      return {
-        query:descendent_query,
-        fields:null,
-        options:{
-          sort:usesort
+      */
+      if(typeof(treemodifier)==='string'){
+        var selector = Selector.mini(treemodifier);
+
+        var nestedquery = NestedSet.query_factory(selector, results);
+        var search_terms = _.map(_.filter(nestedquery.search, filterterm), processterm);
+        var skeleton_terms = _.map(nestedquery.skeleton, processterm);
+
+
+
+        search_terms = search_terms.length>1 ? {
+          "$and":search_terms
+        } : (search_terms[0] || null)
+
+        var query = search_terms ? {
+          "$and":[search_terms,{
+            "$or":skeleton_terms
+          }]
+        } : {
+          "$or":skeleton_terms
+        }
+
+        return {
+          query:query,
+          fields:null,
+          options:{
+            sort:usesort
+          }
         }
       }
+      else{
+        var descendent_tree_query = NestedSet.generate_tree_query('', _.map(results, NestedSet.extract_context));
+        descendent_tree_query = _.map(descendent_tree_query, processterm);
+
+        var descendent_query = descendent_tree_query.length>1 ? 
+          {'$or':descendent_tree_query} :
+          {'$and':descendent_tree_query}
+
+        return {
+          query:descendent_query,
+          fields:null,
+          options:{
+            sort:usesort
+          }
+        }
+      }
+
+      
     }
     else{
       return null;
