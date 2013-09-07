@@ -16,6 +16,8 @@ var NestedSet = require('digger-nestedset');
 var _ = require('lodash');
 var operator_functions = require('./operators');
 var Selector = require('digger-selector');
+var utils = require('digger-utils');
+
 function filterterm(term){
   if(term.$or || term.$and){
     return true;
@@ -244,30 +246,6 @@ function generate_mongo_query(selector, context){
   return ret;
 }
 
-function combine_tree_results(results, descendent_results){
-  var results_map = {};
-
-  // loop each result and it's links to see if we have a parent in the original results
-  // or in these results
-  _.each(results, function(result){
-    results_map[result._digger.diggerid] = result;
-  })
-
-  _.each(descendent_results, function(descendent_result){
-    results_map[descendent_result._digger.diggerid] = descendent_result;
-  })
-
-  _.each(descendent_results, function(descendent_result){
-    var parent = results_map[descendent_result._digger.diggerparentid];
-
-    if(parent){
-      parent._children = parent._children || [];
-      parent._children.push(descendent_result);
-    }
-  })
-
-  return results;
-}
 
 function selectfn(collection, mongoquery, callback){
 
@@ -334,7 +312,7 @@ module.exports = function(supplier){
             return;
           }
 
-          var finalresults = combine_tree_results(results, descendent_results);
+          var finalresults = utils.combine_tree_results(results.concat(descendent_results));
 
           reply(null, finalresults);
         })
