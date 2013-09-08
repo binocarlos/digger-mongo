@@ -15,6 +15,7 @@
 var NestedSet = require('digger-nestedset');
 var _ = require('lodash');
 var async = require('async');
+var strip_dollars = require('./strip_dollars');
 
 /*
 
@@ -60,6 +61,7 @@ function process_append(model, parent, done){
     child._digger.diggerpath = path;
     child._id = child._digger.diggerid;
     child._digger.diggerparentid = parent._digger.diggerid;
+    strip_dollars(child);
     delete(child._data);
     NestedSet.assign_tree_encodings(child._digger)
     child._digger.next_position = (child._children || []).length;
@@ -71,6 +73,7 @@ function process_append(model, parent, done){
   NestedSet.assign_tree_encodings(model._digger)
   model._id = model._digger.diggerid;
   delete(model._data);
+  strip_dollars(model);
   if(parent){
     model._digger.diggerparentid = parent._digger.diggerid;
   }
