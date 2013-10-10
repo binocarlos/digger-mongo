@@ -46,7 +46,13 @@ var operator_functions = module.exports = {
   },
   "=":function(query){
     var ret = {};
-    ret[query.field] = query.value;
+    if(!query.value){
+      ret[query.field] = query.value;
+    }
+    else{
+      ret[query.field] = new RegExp('^' + utils.escapeRegexp(query.value) + '$', 'i');  
+    }
+    
     return ret;
   },
   "!=":function(query){

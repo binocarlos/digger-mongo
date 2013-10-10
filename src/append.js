@@ -120,8 +120,6 @@ module.exports = function(supplier){
       var base_path = (contextid ? obj._digger.diggerpath : []) || [];
       var context = contextid ? obj : null;
 
-
-
       var fns = _.map(body, function(model, i){
         return function(next){
           model._digger.diggerpath = base_path.concat([start_position + i]);
