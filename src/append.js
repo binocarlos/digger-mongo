@@ -154,6 +154,7 @@ module.exports = function(supplier){
         console.log('-------------------------------------------');
         console.dir(e);
         console.log(e.stack);
+        reply(e);
       }
       
     })

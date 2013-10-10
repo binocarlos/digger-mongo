@@ -113,6 +113,13 @@ function get_mongo_collection(details, callback){
 
     var collection = new mongodb.Collection(database, details.collection);
 
+    // load the meta info (a container that has no _digger)
+    collection.load_meta = function(ready){
+      collection.find({
+        "__diggermongo.digger":true
+      }, null, null).nextObject(ready);
+    }
+
     collection.ensure_meta = function(ready){
       collection.find({
         "__diggermongo.digger":true
@@ -130,6 +137,9 @@ function get_mongo_collection(details, callback){
             }
           }
 
+          console.log('-------------------------------------------');
+          console.log('-------------------------------------------');
+          console.log('insert meta');
           collection.insert(settings, {
             '$safe':true
           }, function(error){
