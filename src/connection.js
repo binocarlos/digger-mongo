@@ -137,9 +137,6 @@ function get_mongo_collection(details, callback){
             }
           }
 
-          console.log('-------------------------------------------');
-          console.log('-------------------------------------------');
-          console.log('insert meta');
           collection.insert(settings, {
             '$safe':true
           }, function(error){
