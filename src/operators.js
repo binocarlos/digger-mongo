@@ -65,28 +65,28 @@ var operator_functions = module.exports = {
   ">":function(query){
     var ret = {};
     ret[query.field] = {
-      '$gt':query.field==='_digger.left' ? query.value : parseFloat(query.value)
+      '$gt':parseFloat(query.value)
     }
     return ret;
   },
   ">=":function(query){
     var ret = {};
     ret[query.field] = {
-      '$gte':query.field==='_digger.left' ? query.value : parseFloat(query.value)
+      '$gte':parseFloat(query.value)
     }
     return ret;
   },
   "<":function(query){
     var ret = {};
     ret[query.field] = {
-      '$lt':query.field==='_digger.right' ? query.value : parseFloat(query.value)
+      '$lt':parseFloat(query.value)
     }
     return ret;
   },
   "<=":function(query){
     var ret = {};
     ret[query.field] = {
-      '$lte':query.field==='_digger.right' ? query.value : parseFloat(query.value)
+      '$lte':parseFloat(query.value)
     }
     return ret;
   },

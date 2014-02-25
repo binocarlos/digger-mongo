@@ -40,9 +40,15 @@ module.exports = function(supplier){
     loader(collection, {
       id:id
     }, function(error, context){
-      remove(collection, context, function(error){
-        reply(error, context);
-      })
+      if(!context){
+        reply('no context to remove');
+      }
+      else{
+        remove(collection, context, function(error){
+          reply(error, context);
+        })  
+      }
+      
     })
 
 	}
