@@ -156,7 +156,11 @@ function get_mongo_collection(details, callback){
 
     collection.ensure_meta(function(){
       if(!details.nocache){
-        collections[details.hostname + ':' + details.port + ':' + details.database + ':' + details.collection] = collection;  
+        var key = details.hostname + ':' + details.port + ':' + details.database + ':' + details.collection;
+        collections[key] = collection;
+        setTimeout(function(){
+          delete(collections[key]);
+        }, 10000)
       }
       all_callbacks(null, collection);  
     })
